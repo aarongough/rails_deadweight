@@ -15,7 +15,9 @@ module RailsDeadweight
     end
     
     def count_method_calls_for(method_name)
-      0
+      method_call_pattern = Regexp.new("(^#{method_name}|[^def][\.\s\{]#{method_name})")
+      method_calls = @project_as_string.scan method_call_pattern
+      return method_calls.count
     end
   end
 end
