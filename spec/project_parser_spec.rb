@@ -11,7 +11,7 @@ describe RailsDeadweight::ProjectParser do
         def method_2(params)
         end
         
-        def method3(params) puts foo; end
+        def method_3(params) puts foo; end
       EOD
       
       @project_parser = RailsDeadweight::ProjectParser.new(example_code)
@@ -34,7 +34,7 @@ describe RailsDeadweight::ProjectParser do
         foo = method_1
         foo = method_1()
         
-        bar = "#{method_2}"
+        bar = "\#{method_2}"
         
         baz = mmethod_3
       EOD
