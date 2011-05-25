@@ -1,0 +1,1 @@
+require File.dirname(__FILE__) + "/rails_deadweight/project_globber.rb"
