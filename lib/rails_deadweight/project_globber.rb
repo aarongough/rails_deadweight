@@ -2,7 +2,8 @@ module RailsDeadweight
   class ProjectGlobber
     
     def self.get_globbed_project(project_root)
-      return ""
+      app_root = File.expand_path(project_root) + "/app"
+      puts app_root
     end
     
   end
