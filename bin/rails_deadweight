@@ -1,1 +1,50 @@
-#!/usr/bin/env/ ruby
+#!/usr/bin/env ruby
+
+require File.dirname(__FILE__) + "/../lib/rails_deadweight.rb"
+
+root_path = File.expand_path ARGV[0]
+
+globbed_project = RailsDeadweight::ProjectGlobber.get_globbed_project(root_path)
+project = RailsDeadweight::ProjectParser.new(globbed_project)
+
+methods =  project.get_defined_methods
+
+header = <<-EOD
+---------------------------
+    Rails Deadweight
+---------------------------
+
+Processing: #{root_path}
+Number of methods: #{methods.count}
+
+EOD
+
+start_time = Time.now.to_i
+processed_methods = 1
+method_times = []
+
+
+method_counts = methods.map do |method|
+  print "\e[2J\e[H"
+  puts header
+  puts "Progress: #{(processed_methods.to_f / methods.count * 100).to_i}%"
+  elapsed_time = Time.now.to_i - start_time
+  method_times << elapsed_time.to_f / processed_methods
+  avg_method_time = method_times.inject{|sum, el| sum + el }.to_f / method_times.size
+  projected_end_time = (avg_method_time * methods.count).to_i + start_time
+  eta = projected_end_time - Time.now.to_i
+  puts "ETA: #{eta} seconds"
+  processed_methods += 1
+  {:count => project.count_method_calls_for(method), :name => method}
+end
+
+unused_methods = method_counts.select do |method|
+  method[:count] == 0
+end
+
+print "\e[2J\e[H"
+puts header
+
+unused_methods.each do |method|
+  puts method[:name]
+end

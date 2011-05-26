@@ -1,7 +1,7 @@
 module RailsDeadweight
   class ProjectParser
     
-    METHOD_DEFINITION_PATTERN = /def ([a-zA-Z0-9_\!\?]*)/
+    METHOD_DEFINITION_PATTERN = /def ([\.a-zA-Z0-9_\!\?]*)/
         
     def initialize(project_as_string)
       @project_as_string = project_as_string
@@ -9,8 +9,12 @@ module RailsDeadweight
     
     def get_defined_methods
       method_definitions = @project_as_string.scan METHOD_DEFINITION_PATTERN
-      method_definitions.map do |method|
-        method.to_s
+      methods = method_definitions.map do |method|
+        method.to_s.gsub("self.", "")
+      end
+      
+      methods.reject do |method|
+        method.empty?
       end
     end
     

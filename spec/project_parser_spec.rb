@@ -12,6 +12,9 @@ describe RailsDeadweight::ProjectParser do
         end
         
         def method_3(params) puts foo; end
+        
+        def self.method_4
+        end
       EOD
       
       @project_parser = RailsDeadweight::ProjectParser.new(example_code)
@@ -20,10 +23,11 @@ describe RailsDeadweight::ProjectParser do
     it "should return an array of methods that are defined by the ruby code" do
       methods = @project_parser.get_defined_methods
       
-      methods.count.should == 3
+      methods.count.should == 4
       methods.should include "method_1"
       methods.should include "method_2"
       methods.should include "method_3"
+      methods.should include "method_4"
     end
   end
   
