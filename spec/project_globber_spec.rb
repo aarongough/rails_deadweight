@@ -14,6 +14,12 @@ describe RailsDeadweight::ProjectGlobber do
       project_as_string.should include "<%= @foo.a_method_on_test %>"
     end   
     
+    it "should include files in the 'lib' directory" do
+      project_as_string = RailsDeadweight::ProjectGlobber.get_globbed_project @example_rails_app_path
+      
+      project_as_string.should include "lib_method"
+    end
+    
     it "should not glob files that are not in the project's app dir" do
       project_as_string = RailsDeadweight::ProjectGlobber.get_globbed_project @example_rails_app_path
       

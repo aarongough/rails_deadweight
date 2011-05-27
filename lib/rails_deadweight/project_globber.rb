@@ -1,15 +1,20 @@
 module RailsDeadweight
   class ProjectGlobber
     
-    RUBY_FILE_EXTENSIONS = [".rb", ".erb"]
+    RUBY_FILE_EXTENSIONS = [".rb", ".erb", ".rhtml", ".rjs"]
     
     def self.get_globbed_project(project_root)
-      app_root = File.expand_path(project_root) + "/app"
+      included_paths = [
+        File.expand_path(project_root) + "/app",
+        File.expand_path(project_root) + "/lib"
+      ]
       project_files = []
       project_glob = ""
       
-      RUBY_FILE_EXTENSIONS.each do |extension|
-        project_files.concat Dir[app_root + "/**/*#{extension}"]
+      included_paths.each do |path|
+        RUBY_FILE_EXTENSIONS.each do |extension|
+          project_files.concat Dir[path + "/**/*#{extension}"]
+        end
       end
       
       project_files.each do |path|
