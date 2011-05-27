@@ -20,7 +20,7 @@ describe RailsDeadweight::ProjectParser do
         end
       EOD
       
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
     end
     
     it "should return an array of methods that are defined by the ruby code" do
@@ -46,7 +46,7 @@ describe RailsDeadweight::ProjectParser do
         method_1()
         method_1
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_1"
       count.should == 2
@@ -57,7 +57,7 @@ describe RailsDeadweight::ProjectParser do
         Blah.method_1()
         Blah.method_1
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_1"
       count.should == 2
@@ -68,7 +68,7 @@ describe RailsDeadweight::ProjectParser do
         foo = method_1()
         foo = method_1
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_1"
       count.should == 2
@@ -79,7 +79,7 @@ describe RailsDeadweight::ProjectParser do
         foo = blah(method_1())
         foo = blah(method_1)
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_1"
       count.should == 2
@@ -89,7 +89,7 @@ describe RailsDeadweight::ProjectParser do
       example_code = <<-EOD
         bar = "\#{method_2}"
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_2"
       count.should == 1
@@ -99,7 +99,7 @@ describe RailsDeadweight::ProjectParser do
       example_code = <<-EOD
         baz = mmethod_3
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_3"
       count.should == 0
@@ -111,10 +111,34 @@ describe RailsDeadweight::ProjectParser do
         around_filter :method_4
         after_filter  :method_4
       EOD
-      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_4"
       count.should == 3
+    end
+  end
+  
+  describe "#count_routes_for" do
+    it "should count routes pointing to an action" do
+      RailsDeadweight::ProjectRoutes.should_receive(:get_routes_for).with("/blah/foo").and_return("
+           range_video GET /videos/:id/range(.:format)        {:action=>\"method_1\", :controller=>\"videos\"}
+           video_video GET /videos/:id/video(.:format)        {:action=>\"method_1\", :controller=>\"videos\"}
+      ")
+      @project_parser = RailsDeadweight::ProjectParser.new("example_code", "/blah/foo")
+      
+      count = @project_parser.count_routes_for "method_1"
+      count.should == 2
+    end
+    
+    it "should return zero if there are no routes pointing to the action" do
+      RailsDeadweight::ProjectRoutes.should_receive(:get_routes_for).with("/blah/foo").and_return("
+           range_video GET /videos/:id/range(.:format)        {:action=>\"method_1\", :controller=>\"videos\"}
+           video_video GET /videos/:id/video(.:format)        {:action=>\"method_1\", :controller=>\"videos\"}
+      ")
+      @project_parser = RailsDeadweight::ProjectParser.new("example_code", "/blah/foo")
+      
+      count = @project_parser.count_routes_for "method_2"
+      count.should == 0
     end
   end
 end

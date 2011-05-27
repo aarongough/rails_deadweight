@@ -5,7 +5,7 @@ require File.dirname(__FILE__) + "/../lib/rails_deadweight.rb"
 root_path = File.expand_path ARGV[0]
 
 globbed_project = RailsDeadweight::ProjectGlobber.get_globbed_project(root_path)
-project = RailsDeadweight::ProjectParser.new(globbed_project)
+project = RailsDeadweight::ProjectParser.new(globbed_project, root_path)
 
 methods =  project.get_defined_methods
 
@@ -35,7 +35,7 @@ method_counts = methods.map do |method|
   eta = projected_end_time - Time.now.to_i
   puts "ETA: #{eta} seconds"
   processed_methods += 1
-  {:count => project.count_method_calls_for(method), :name => method}
+  {:count => project.count_method_calls_for(method) + project.count_routes_for(method), :name => method}
 end
 
 unused_methods = method_counts.select do |method|
