@@ -25,7 +25,7 @@ method_times = []
 
 
 method_counts = methods.map do |method|
-  #print "\e[2J\e[H"
+  print "\e[2J\e[H"
   puts header
   puts "Progress: #{(processed_methods.to_f / methods.count * 100).to_i}%"
   elapsed_time = Time.now.to_i - start_time
@@ -35,7 +35,6 @@ method_counts = methods.map do |method|
   eta = projected_end_time - Time.now.to_i
   puts "ETA: #{eta} seconds"
   processed_methods += 1
-  puts "ROUTE COUNT: #{method} - #{project.count_routes_for(method)}"
   {:count => project.count_method_calls_for(method) + project.count_routes_for(method), :name => method}
 end
 

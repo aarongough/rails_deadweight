@@ -28,6 +28,10 @@ module RailsDeadweight
     def count_routes_for(action_name)
       @routes_string ||= ProjectRoutes.get_routes_for @project_root
       
+      unless @routes_string.include? ":action"
+        raise "Could not get project routes. Please make sure you're running rails_deadweight from within your application's root directory"
+      end
+      
       route_pattern = Regexp.new(":action=>\"#{action_name}\"")
       return @routes_string.scan(route_pattern).count
     end

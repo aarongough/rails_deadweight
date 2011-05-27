@@ -140,5 +140,17 @@ describe RailsDeadweight::ProjectParser do
       count = @project_parser.count_routes_for "method_2"
       count.should == 0
     end
+    
+    it "should raise exception when unable to get routes" do
+      RailsDeadweight::ProjectRoutes.should_receive(:get_routes_for).with("/blah/foo").and_return("
+        (in /Users/aarongough/work/ror_analytics)
+        Missing the Rails 2.3.5 gem. Please `gem install -v=2.3.5 rails`, update your RAILS_GEM_VERSION setting in config/environment.rb for the Rails version you do have installed, or comment out RAILS_GEM_VERSION to use the latest version installed.
+      ")
+      @project_parser = RailsDeadweight::ProjectParser.new("example_code", "/blah/foo")
+      
+      lambda {
+        @project_parser.count_routes_for "method_2"
+      }.should raise_error
+    end
   end
 end
