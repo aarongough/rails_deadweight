@@ -41,33 +41,48 @@ describe RailsDeadweight::ProjectParser do
   end
   
   describe "#count_method_calls_for" do
-    before :each do
+    it "should return the number of times a method is called" do
       example_code = <<-EOD
         method_1()
         foo = method_1
         foo = method_1()
-        
-        bar = "\#{method_2}"
-        
-        baz = mmethod_3
       EOD
-      
       @project_parser = RailsDeadweight::ProjectParser.new(example_code)
-    end
-    
-    it "should return the number of times a method is called" do
+      
       count = @project_parser.count_method_calls_for "method_1"
       count.should == 3
     end
     
     it "should detect method calls inside string interpolation" do
+      example_code = <<-EOD
+        bar = "\#{method_2}"
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
       count = @project_parser.count_method_calls_for "method_2"
       count.should == 1
     end
     
     it "should not return a method call instance for a misspelled method name" do
+      example_code = <<-EOD
+        baz = mmethod_3
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
       count = @project_parser.count_method_calls_for "method_3"
       count.should == 0
+    end
+    
+    it "should detect usage of method name in filters" do
+      example_code = <<-EOD
+        before_filter :method_4
+        around_filter :method_4
+        after_filter  :method_4
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
+      count = @project_parser.count_method_calls_for "method_4"
+      count.should == 3
     end
   end
 end
