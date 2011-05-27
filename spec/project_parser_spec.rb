@@ -40,17 +40,49 @@ describe RailsDeadweight::ProjectParser do
     end
   end
   
-  describe "#count_method_calls_for" do
-    it "should return the number of times a method is called" do
+  describe "#count_method_calls_for" do    
+    it "should detect method calls at start of line" do
       example_code = <<-EOD
         method_1()
-        foo = method_1
-        foo = method_1()
+        method_1
       EOD
       @project_parser = RailsDeadweight::ProjectParser.new(example_code)
       
       count = @project_parser.count_method_calls_for "method_1"
-      count.should == 3
+      count.should == 2
+    end
+    
+    it "should detect method call on object" do
+      example_code = <<-EOD
+        Blah.method_1()
+        Blah.method_1
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
+      count = @project_parser.count_method_calls_for "method_1"
+      count.should == 2
+    end
+    
+    it "should detect method call after assignment" do
+      example_code = <<-EOD
+        foo = method_1()
+        foo = method_1
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
+      count = @project_parser.count_method_calls_for "method_1"
+      count.should == 2
+    end
+    
+    it "should detect method call in expression" do
+      example_code = <<-EOD
+        foo = blah(method_1())
+        foo = blah(method_1)
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code)
+      
+      count = @project_parser.count_method_calls_for "method_1"
+      count.should == 2
     end
     
     it "should detect method calls inside string interpolation" do
