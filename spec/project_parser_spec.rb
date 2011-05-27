@@ -63,6 +63,17 @@ describe RailsDeadweight::ProjectParser do
       count.should == 2
     end
     
+    it "should detect method calls preceeded by logical inverter" do
+      example_code = <<-EOD
+        !method_1()
+        !method_1
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
+      
+      count = @project_parser.count_method_calls_for "method_1"
+      count.should == 2
+    end
+    
     it "should detect method call on object" do
       example_code = <<-EOD
         Blah.method_1()

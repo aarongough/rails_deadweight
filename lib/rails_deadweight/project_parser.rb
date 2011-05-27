@@ -20,7 +20,7 @@ module RailsDeadweight
     end
     
     def count_method_calls_for(method_name)
-      method_call_pattern = Regexp.new("(filter(\s)+:#{method_name}|^#{method_name}|(def)?[\.\s\{\(]#{method_name})")
+      method_call_pattern = Regexp.new("(:#{method_name}|^#{method_name}|(def)?[\.\s\{\(\!]#{method_name})")
       method_calls = @project_as_string.scan method_call_pattern
       
       method_calls = method_calls.map do |method|
@@ -38,7 +38,7 @@ module RailsDeadweight
       @routes_string ||= ProjectRoutes.get_routes_for @project_root
       
       unless @routes_string.include? ":action"
-        raise "Could not get project routes. Please make sure you're running rails_deadweight from within your application's root directory"
+        raise "\n\n** Could not get project routes. Please make sure you're running rails_deadweight from within your application's root directory **\n\n"
       end
       
       route_pattern = Regexp.new(":action=>\"#{action_name}\"")

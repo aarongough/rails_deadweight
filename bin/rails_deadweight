@@ -45,6 +45,8 @@ end
 print "\e[2J\e[H"
 puts header
 
+puts "\nUnused methods: #{unused_methods.count}\n\n"
+
 unused_methods.each do |method|
   puts method[:name]
 end
