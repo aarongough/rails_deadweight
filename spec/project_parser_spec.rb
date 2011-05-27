@@ -4,6 +4,9 @@ describe RailsDeadweight::ProjectParser do
   describe "#get_defined_methods" do
     before :each do
       example_code = <<-EOD
+        def initialize
+        end
+      
         def method_1
           # does nothing
         end
@@ -28,6 +31,12 @@ describe RailsDeadweight::ProjectParser do
       methods.should include "method_2"
       methods.should include "method_3"
       methods.should include "method_4"
+    end
+    
+    it "should not return initialize methods" do
+      methods = @project_parser.get_defined_methods
+      
+      methods.should_not include "initialize"
     end
   end
   

@@ -14,7 +14,7 @@ module RailsDeadweight
       end
       
       methods.reject do |method|
-        method.empty?
+        method.empty? || method == "initialize"
       end
     end
     
