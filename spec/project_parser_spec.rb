@@ -41,6 +41,17 @@ describe RailsDeadweight::ProjectParser do
   end
   
   describe "#count_method_calls_for" do    
+    it "should not detect method calls from method definition" do
+      example_code = <<-EOD
+        def method_1
+        end
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
+      
+      count = @project_parser.count_method_calls_for "method_1"
+      count.should == 0
+    end
+    
     it "should detect method calls at start of line" do
       example_code = <<-EOD
         method_1()
@@ -60,6 +71,28 @@ describe RailsDeadweight::ProjectParser do
       @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
       
       count = @project_parser.count_method_calls_for "method_1"
+      count.should == 2
+    end
+    
+    it "should detect method calls for methods that end with a question mark" do
+      example_code = <<-EOD
+        Blah.method_1?()
+        Blah.method_1?
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
+      
+      count = @project_parser.count_method_calls_for "method_1?"
+      count.should == 2
+    end
+    
+    it "should detect method calls for methods that end with a exclamation mark" do
+      example_code = <<-EOD
+        Blah.method_1!()
+        Blah.method_1!
+      EOD
+      @project_parser = RailsDeadweight::ProjectParser.new(example_code, "/blah/foo")
+      
+      count = @project_parser.count_method_calls_for "method_1!"
       count.should == 2
     end
     

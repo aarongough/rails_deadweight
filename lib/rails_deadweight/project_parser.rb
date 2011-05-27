@@ -20,8 +20,17 @@ module RailsDeadweight
     end
     
     def count_method_calls_for(method_name)
-      method_call_pattern = Regexp.new("(filter(\s)+:#{method_name}|^#{method_name}|[^def][\.\s\{\(]#{method_name})")
+      method_call_pattern = Regexp.new("(filter(\s)+:#{method_name}|^#{method_name}|(def)?[\.\s\{\(]#{method_name})")
       method_calls = @project_as_string.scan method_call_pattern
+      
+      method_calls = method_calls.map do |method|
+        method.to_s
+      end
+      
+      method_calls = method_calls.reject do |method|
+        method.match /^def/
+      end
+      
       return method_calls.count
     end
     
