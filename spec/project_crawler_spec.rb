@@ -54,7 +54,7 @@ describe RailsDeadweight::ProjectCrawler do
     end
     
     it "should return files from the /test directory" do
-      @test_name.should include "test_test.rb"
+      @test_names.should include "test_test.rb"
     end
     
     it "should not return files from the /app or /lib directories" do
