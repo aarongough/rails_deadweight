@@ -3,173 +3,243 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe RailsDeadweight::Parsers::MethodParser do
   describe ".get_defined_methods" do
     
-    it "should detect instance method definition without params" do
-      example_code = <<-EOD
-        def method_1
-        end
-      EOD
+    it "should return an array of hashes, each of which contain the file name and line number at which the method is defined" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def method_1
+          end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files)
+      methods.should be_a Array
+      methods.each do |method|
+        method.should have_key :file_path
+        method.should have_key :line_number
+        method.should have_key :name
+      end
+    end
+    
+    it "should detect instance method definition without params" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def method_1
+          end
+        EOD
+      }]
+      
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should include "method_1"
     end
     
     it "should detect instance method definition with params" do
-      example_code = <<-EOD
-        def method_1()
-        end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def method_1()
+          end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should include "method_1"
     end
     
     it "should detect class method definition without params" do
-      example_code = <<-EOD
-        def self.method_1
-        end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def self.method_1
+          end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should include "method_1"
     end
     
     it "should detect class method definition with params" do
-      example_code = <<-EOD
-        def self.method_1()
-        end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def self.method_1()
+          end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should include "method_1"
     end
     
     it "should detect single line method definition" do
-      example_code = <<-EOD
-        def method_3(params) puts foo; end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def method_3(params) puts foo; end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should include "method_3"
     end
     
     it "should not return initialize methods" do
-      example_code = <<-EOD
-        def initialize
-        end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def initialize
+          end
+        EOD
+      }]
       
-      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(example_code)
+      methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files).map{|x| x[:name]}
       methods.should_not include "initialize"
     end
   end
   
-  describe ".count_method_calls_for" do    
+  describe ".count_method_calls_for" do
+    
     it "should not detect method calls from method definition" do
-      example_code = <<-EOD
-        def method_1
-        end
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          def method_1
+          end
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 0
     end
     
     it "should detect method calls at start of line" do
-      example_code = <<-EOD
-        method_1()
-        method_1
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          method_1()
+          method_1
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 2
     end
     
     it "should detect method calls preceeded by logical inverter" do
-      example_code = <<-EOD
-        !method_1()
-        !method_1
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          !method_1()
+          !method_1
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 2
     end
     
     it "should detect method call on object" do
-      example_code = <<-EOD
-        Blah.method_1()
-        Blah.method_1
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          Blah.method_1()
+          Blah.method_1
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 2
     end
     
     it "should detect method calls for methods that end with a question mark" do
-      example_code = <<-EOD
-        Blah.method_1?()
-        Blah.method_1?
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          Blah.method_1?()
+          Blah.method_1?
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1?")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1?")
       count.should == 2
     end
     
     it "should detect method calls for methods that end with a exclamation mark" do
-      example_code = <<-EOD
-        Blah.method_1!()
-        Blah.method_1!
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          Blah.method_1!()
+          Blah.method_1!
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1!")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1!")
       count.should == 2
     end
     
     it "should detect method call after assignment" do
-      example_code = <<-EOD
-        foo = method_1()
-        foo = method_1
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          foo = method_1()
+          foo = method_1
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 2
     end
     
     it "should detect method call in expression" do
-      example_code = <<-EOD
-        foo = blah(method_1())
-        foo = blah(method_1)
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          foo = blah(method_1())
+          foo = blah(method_1)
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_1")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
       count.should == 2
     end
     
     it "should detect method calls inside string interpolation" do
-      example_code = <<-EOD
-        bar = "\#{method_2}"
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          bar = "\#{method_2}"
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_2")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_2")
       count.should == 1
     end
     
     it "should not return a method call instance for a misspelled method name" do
-      example_code = <<-EOD
-        baz = mmethod_3
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          baz = mmethod_3
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_3")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_3")
       count.should == 0
     end
     
     it "should detect usage of method name in symbols" do
-      example_code = <<-EOD
-        before_filter :method_4
-        after_save    :method_4
-        after_create  :method_4
-      EOD
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          before_filter :method_4
+          after_save    :method_4
+          after_create  :method_4
+        EOD
+      }]
       
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(example_code, "method_4")
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_4")
       count.should == 3
     end
   end
