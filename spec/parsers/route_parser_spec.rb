@@ -43,6 +43,16 @@ describe RailsDeadweight::Parsers::RouteParser do
       count = RailsDeadweight::Parsers::RouteParser.count_routes_for_controller(routes, "VideosController")
       count.should == 2
     end
+    
+    it "should count routes pointing to controllers with multi-word names" do
+      routes = "
+        range_video GET /videos/:id/range(.:format)        {:action=>\"method_1\", :controller=>\"new_videos\"}
+        video_video GET /videos/:id/video(.:format)        {:action=>\"method_1\", :controller=>\"new_videos\"}
+      "
+
+      count = RailsDeadweight::Parsers::RouteParser.count_routes_for_controller(routes, "NewVideosController")
+      count.should == 2
+    end
 
     it "should return zero if there are no routes pointing to the action" do
       routes = "

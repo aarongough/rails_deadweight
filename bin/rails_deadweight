@@ -4,49 +4,33 @@ require File.dirname(__FILE__) + "/../lib/rails_deadweight.rb"
 
 root_path = File.expand_path ARGV[0]
 
-globbed_project = RailsDeadweight::ProjectGlobber.get_globbed_project(root_path)
-project = RailsDeadweight::ProjectParser.new(globbed_project, root_path)
+project_files = RailsDeadweight::ProjectCrawler.get_project_files(root_path)
+routes_string = `cd #{root_path}; rake routes`
 
-methods =  project.get_defined_methods
+methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(project_files)
+classes = RailsDeadweight::Parsers::ClassParser.get_defined_classes(project_files)
 
-header = <<-EOD
----------------------------
-    Rails Deadweight
----------------------------
-
-Processing: #{root_path}
-Number of methods: #{methods.count}
-
-EOD
-
-start_time = Time.now.to_i
-processed_methods = 1
-method_times = []
-
-
-method_counts = methods.map do |method|
-  print "\e[2J\e[H"
-  puts header
-  puts "Progress: #{(processed_methods.to_f / methods.count * 100).to_i}%"
-  elapsed_time = Time.now.to_i - start_time
-  method_times << elapsed_time.to_f / processed_methods
-  avg_method_time = method_times.inject{|sum, el| sum + el }.to_f / method_times.size
-  projected_end_time = (avg_method_time * methods.count).to_i + start_time
-  eta = projected_end_time - Time.now.to_i
-  puts "ETA: #{eta} seconds"
-  processed_methods += 1
-  {:count => project.count_method_calls_for(method) + project.count_routes_for(method), :name => method}
+classes.map! do |klass|
+  reference_count =  RailsDeadweight::Parsers::ClassParser.count_class_references(project_files, klass[:name])
+  reference_count += RailsDeadweight::Parsers::RouteParser.count_routes_for_controller(routes_string, klass[:name])
+  
+  klass.merge({
+    :reference_count => reference_count
+  })
 end
 
-unused_methods = method_counts.select do |method|
-  method[:count] == 0
+methods.map! do |method|
+  reference_count =  RailsDeadweight::Parsers::MethodParser.count_method_calls_for(project_files, method[:name])
+  reference_count += RailsDeadweight::Parsers::RouteParser.count_routes_for_action(routes_string, method[:name])
+  
+  method.merge({
+    :reference_count => reference_count
+  })
 end
 
-print "\e[2J\e[H"
-puts header
+unused_classes = classes.select {|x| x[:reference_count] == 0 }
+unused_methods = methods.select {|x| x[:reference_count] == 0 }
 
-puts "\nUnused methods: #{unused_methods.count}\n\n"
-
-unused_methods.each do |method|
-  puts method[:name]
-end
+puts unused_classes.map {|x| x[:name]}
+puts
+puts unused_methods.map {|x| x[:name]}
