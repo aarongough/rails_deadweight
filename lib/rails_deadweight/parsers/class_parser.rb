@@ -9,14 +9,12 @@ module RailsDeadweight
         
         files.each do |file|
           raw_class_definitions = file[:content].scan CLASS_DEFINITION_PATTERN
-          raw_class_definitions.map! do |class_definition|
-            class_definition.to_s
-          end
           
           raw_class_definitions.each do |definition|
             classes << {
               :file_path => file[:path],
-              :name => definition
+              :name => definition.to_s,
+              :line_number => file[:content].slice(0, file[:content].index(definition.to_s)).count("\n") + 1
             }
           end
         end

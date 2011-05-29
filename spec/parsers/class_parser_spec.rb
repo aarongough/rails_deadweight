@@ -2,6 +2,26 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 describe RailsDeadweight::Parsers::ClassParser do
   describe ".get_defined_classes" do
+    
+    it "should return an array of hashes, each of which contain the file name and line number at which the class is defined" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+        
+          class FooClass
+          end
+        EOD
+      }]
+      
+      classes = RailsDeadweight::Parsers::ClassParser.get_defined_classes(@example_files)
+      classes.should be_a Array
+      classes.each do |klass|
+        klass[:file_path].should == @example_files.first[:path]
+        klass[:line_number].should == 2
+        klass[:name].should == "FooClass"
+      end
+    end
+    
     it "should detect a simple class definition" do
       example_files = [{
         :file_path => "/foo/test",

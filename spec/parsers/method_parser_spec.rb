@@ -7,6 +7,7 @@ describe RailsDeadweight::Parsers::MethodParser do
       @example_files = [{
         :path => "/test/foo",
         :content => <<-EOD
+        
           def method_1
           end
         EOD
@@ -15,9 +16,9 @@ describe RailsDeadweight::Parsers::MethodParser do
       methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(@example_files)
       methods.should be_a Array
       methods.each do |method|
-        method.should have_key :file_path
-        method.should have_key :line_number
-        method.should have_key :name
+        method[:file_path].should == @example_files.first[:path]
+        method[:line_number].should == 2
+        method[:name].should == "method_1"
       end
     end
     

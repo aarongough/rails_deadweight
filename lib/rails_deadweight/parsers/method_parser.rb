@@ -9,14 +9,12 @@ module RailsDeadweight
         
         files.each do |file|
           raw_methods = file[:content].scan METHOD_DEFINITION_PATTERN
-          raw_methods.map! do |method|
-            method.to_s.gsub("self.", "")
-          end
           
           raw_methods.each do |method|
             methods << {
               :file_path => file[:path],
-              :name => method
+              :name => method.to_s.gsub("self.", ""),
+              :line_number => file[:content].slice(0, file[:content].index(method.to_s)).count("\n") + 1
             }
           end
         end
