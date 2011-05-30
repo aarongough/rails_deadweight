@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + "/../lib/rails_deadweight.rb"
 include RailsDeadweight::Utilities
 
-root_path = File.expand_path ARGV[0]
+root_path = File.expand_path(`pwd`).gsub("\n", "")
 
 color_puts "
 ---------------------------
