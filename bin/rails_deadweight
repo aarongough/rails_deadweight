@@ -1,16 +1,34 @@
 #!/usr/bin/env ruby
 
 require File.dirname(__FILE__) + "/../lib/rails_deadweight.rb"
+include RailsDeadweight::Utilities
 
 root_path = File.expand_path ARGV[0]
 
+color_puts "
+---------------------------
+    Rails Deadweight
+---------------------------
+
+Processing: #{root_path}
+
+Starting...", :green
+
+
+
 project_files = RailsDeadweight::ProjectCrawler.get_project_files(root_path)
-routes_string = `cd #{root_path}; rake routes`
+routes_string = `cd #{root_path}; rake routes 2>&1`
 
 methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(project_files)
 classes = RailsDeadweight::Parsers::ClassParser.get_defined_classes(project_files)
 
+items_to_process = methods.count + classes.count
+processed_items = 0
+
 classes.map! do |klass|
+  processed_items += 1
+  progress_report(items_to_process, processed_items)
+  
   reference_count =  RailsDeadweight::Parsers::ClassParser.count_class_references(project_files, klass[:name])
   reference_count += RailsDeadweight::Parsers::RouteParser.count_routes_for_controller(routes_string, klass[:name])
   
@@ -20,6 +38,9 @@ classes.map! do |klass|
 end
 
 methods.map! do |method|
+  processed_items += 1
+  progress_report(items_to_process, processed_items)
+  
   reference_count =  RailsDeadweight::Parsers::MethodParser.count_method_calls_for(project_files, method[:name])
   reference_count += RailsDeadweight::Parsers::RouteParser.count_routes_for_action(routes_string, method[:name])
   
@@ -31,6 +52,38 @@ end
 unused_classes = classes.select {|x| x[:reference_count] == 0 }
 unused_methods = methods.select {|x| x[:reference_count] == 0 }
 
-puts unused_classes.map {|x| x[:name]}
+print "\e[1A\e[K"
+puts "Totals:"
+puts "  #{classes.count} classes"
+puts "  #{methods.count} methods"
 puts
-puts unused_methods.map {|x| x[:name]}
+
+if unused_classes == 0
+  color_puts "No unused classes!", :green
+else
+  color_puts "#{unused_classes.count} unused classes:", :red
+  
+  unused_classes.each do |unused_class|
+    puts "  #{unused_class[:name]}"
+    color_puts "  #{unused_class[:file_path].gsub(root_path + "/", "")}:#{unused_class[:line_number]}", :grey
+    puts
+  end
+end
+
+puts
+
+if unused_methods == 0
+  color_puts "No unused methods!", :green
+else
+  color_puts "#{unused_methods.count} unused methods:", :red
+  
+  unused_methods.each do |unused_method|
+    puts "  #{unused_method[:name]}"
+    color_puts "  #{unused_method[:file_path].gsub(root_path + "/", "")}:#{unused_method[:line_number]}", :grey
+    puts
+  end
+end
+
+puts
+
+
