@@ -15,7 +15,6 @@ Processing: #{root_path}
 Starting...", :green
 
 
-
 project_files = RailsDeadweight::ProjectCrawler.get_project_files(root_path)
 routes_string = `cd #{root_path}; rake routes 2>&1`
 
