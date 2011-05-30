@@ -141,6 +141,19 @@ describe RailsDeadweight::Parsers::MethodParser do
       count.should == 2
     end
     
+    it "should detect method calls preceeded by starship operator" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          test=>method_1()
+          foo=>method_1
+        EOD
+      }]
+      
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_1")
+      count.should == 2
+    end
+    
     it "should detect method call on object" do
       @example_files = [{
         :path => "/test/foo",
