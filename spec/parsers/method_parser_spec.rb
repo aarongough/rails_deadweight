@@ -231,18 +231,6 @@ describe RailsDeadweight::Parsers::MethodParser do
       count.should == 1
     end
     
-    it "should not return a method call instance for a misspelled method name" do
-      @example_files = [{
-        :path => "/test/foo",
-        :content => <<-EOD
-          baz = mmethod_3
-        EOD
-      }]
-      
-      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_3")
-      count.should == 0
-    end
-    
     it "should detect usage of method name in symbols" do
       @example_files = [{
         :path => "/test/foo",
@@ -255,6 +243,31 @@ describe RailsDeadweight::Parsers::MethodParser do
       
       count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_4")
       count.should == 3
+    end
+    
+    it "should not return a method call instance for a misspelled method name" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          baz = mmethod_3
+        EOD
+      }]
+      
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_3")
+      count.should == 0
+    end
+    
+    it "should not detect a method call preceeded by an underscore" do
+      @example_files = [{
+        :path => "/test/foo",
+        :content => <<-EOD
+          foo = test_method_3()
+          foo = test_method_3
+        EOD
+      }]
+      
+      count = RailsDeadweight::Parsers::MethodParser.count_method_calls_for(@example_files, "method_3")
+      count.should == 0
     end
   end
 end

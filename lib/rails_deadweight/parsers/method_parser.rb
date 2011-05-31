@@ -25,7 +25,7 @@ module RailsDeadweight
       end
       
       def self.count_method_calls_for(files, method_name)
-        method_call_pattern = Regexp.new("(:#{method_name}|^#{method_name}|(def)?[^A-Za-z0-9]#{method_name})")
+        method_call_pattern = Regexp.new("(:#{method_name}|^#{method_name}|(def)?[^A-Za-z0-9_]#{method_name})")
         method_calls = []
         
         files.each do |file|
