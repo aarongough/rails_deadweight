@@ -1,12 +1,13 @@
 module RailsDeadweight
   module Utilities
     
-    def color_puts(string, color = :white)
+    def color_puts(string, color = nil)
       case color
         when :white then print( "\e[37m" )
         when :red then print( "\e[31m" )
         when :green then print( "\e[32m" )
         when :grey then print( "\e[90m")
+        when nil then # do nothing
       end
       puts string + "\e[0m"
     end
