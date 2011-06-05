@@ -1,8 +1,8 @@
 = Rails Deadweight
 
-Rails Deadweight (RD) is a simple tool that facilitates simple pruning of unused code in a Rails project. RD is great for dealing with legacy Rails codebases that need some love.
+Rails Deadweight (RD) is a simple tool that facilitates easy pruning of unused code in a Rails project. RD is great for dealing with legacy Rails codebases that need some love.
 
-RD takes note of all the Classes and Methods defined in your Rails project and then highlights the ones that are not used anywhere.
+RD finds all the classes and methods defined in your Rails project and then outputs a list of the ones that are not used anywhere. It takes into account classes and methods that are defined in your 'lib' folder as well as your 'app' folder and is smart enough to map routes to controllers and methods as well, minimizing the number of false positives.
 
 === Installation
 
@@ -12,11 +12,22 @@ For convenience Rails Deadweight is packaged as a RubyGem. Installation is as si
 
 === Usage
 
-Simply run the rails_deadweight command line application against your Rails folder like so:
+Simply cd to the root folder of your Rails app, then run rails_deadweight like so:
 
-  rails_deadweight /path/to/rails/app
+  cd /path/to/rails/app
+  rails_deadweight
   
-RD will then output a report listing all the classes and methods that it considers 'dead weight', and where they can be found in the project so you can delete them.
+RD will then process your rails projects and output a report listing all the classes and methods that it considers 'dead weight', and where they can be found in the project so you can delete them.
+
+=== Usage Notes
+
+The best way to use Rails Deadweight is to run it against your application the same way you would run your test suite: run rails_deadweight, remove a section of the unused code, run your tests, get them to pass, commit, and then start again.
+
+Trying to remove everything that Rails Deadweight finds in one go is probably not advisable, because if you run up against test failures it will be very difficult to find out which part of your change caused the failure.
+
+Rails Deadweight does its best to minimize false positives, but because of the highly dynamic nature of Ruby there are no absolute guarantees that its results will be correct.
+
+Have fun deleting some code!
 
 === Contributors
 
