@@ -1,7 +1,7 @@
 module RailsDeadweight
   class ProjectCrawler
     
-    RUBY_FILE_EXTENSIONS = [".rb", ".erb", ".rjs", ".rhtml", ".builder"]
+    RUBY_FILE_EXTENSIONS = [".rb", ".erb", ".rjs", ".rhtml", ".builder", ".rake"]
     
     def self.get_project_files(root_path)
       files = self.get_ruby_files(root_path + "/app")
