@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe RailsDeadweight::Parsers::MethodParser do
   describe ".get_defined_methods" do
@@ -102,7 +102,7 @@ describe RailsDeadweight::Parsers::MethodParser do
   
   describe ".count_method_calls_for" do
     
-    it "should not detect method calls from method definition" do
+    it "should not detect method definition as method call" do
       @example_files = [{
         :path => "/test/foo",
         :content => <<-EOD

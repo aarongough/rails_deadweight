@@ -1,12 +1,12 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require 'spec_helper'
 
 describe RailsDeadweight::ProjectCrawler do
-  before :each do
+  before do
     @example_rails_app_path = File.dirname(__FILE__) + '/fixtures/example_rails_project'
   end
   
   describe ".get_project_files" do
-    before :each do
+    before do
       @files = RailsDeadweight::ProjectCrawler.get_project_files(@example_rails_app_path)
       @file_names = @files.map do |file|
         File.basename(file[:path])
@@ -34,7 +34,7 @@ describe RailsDeadweight::ProjectCrawler do
   end
   
   describe ".get_test_files" do
-    before :each do
+    before do
       @tests = RailsDeadweight::ProjectCrawler.get_test_files(@example_rails_app_path)
       @test_names = @tests.map do |test|
         File.basename(test[:path])

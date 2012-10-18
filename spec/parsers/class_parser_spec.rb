@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe RailsDeadweight::Parsers::ClassParser do
   describe ".get_defined_classes" do
@@ -9,6 +9,9 @@ describe RailsDeadweight::Parsers::ClassParser do
         :content => <<-EOD
         
           class FooClass
+            def test_method
+              # does nothing!
+            end
           end
         EOD
       }]

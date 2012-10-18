@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe RailsDeadweight::Parsers::RouteParser do  
   describe ".count_routes_for_action" do
@@ -54,7 +54,7 @@ describe RailsDeadweight::Parsers::RouteParser do
       count.should == 2
     end
 
-    it "should return zero if there are no routes pointing to the action" do
+    it "should return zero if there are no routes pointing to the controller" do
       routes = "
         range_video GET /videos/:id/range(.:format)        {:action=>\"method_1\", :controller=>\"videos\"}
       "

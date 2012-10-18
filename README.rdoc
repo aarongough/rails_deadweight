@@ -32,5 +32,3 @@ Have fun deleting some code!
 === Contributors
 
 Contributors:: {Aaron Gough}[mailto:aaron@aarongough.com]
-
-{An mDialog Project.}[http://mdialog.com/]

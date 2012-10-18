@@ -2,7 +2,7 @@ module RailsDeadweight
   module Parsers
     class MethodParser
       
-      METHOD_DEFINITION_PATTERN = /def ([\.a-zA-Z0-9_\!\?]*)/
+      METHOD_DEFINITION_PATTERN = /(def\s+[\.a-zA-Z0-9_\!\?]*)/
       
       def self.get_defined_methods(files)
         methods = []
@@ -10,11 +10,11 @@ module RailsDeadweight
         files.each do |file|
           raw_methods = file[:content].scan METHOD_DEFINITION_PATTERN
           
-          raw_methods.each do |method|
+          raw_methods.each do |definition|
             methods << {
               :file_path => file[:path],
-              :name => method.to_s.gsub("self.", ""),
-              :line_number => file[:content].slice(0, file[:content].index(method.to_s)).count("\n") + 1
+              :name => definition.first.to_s.gsub("self.", "").gsub(/def\s/,""),
+              :line_number => file[:content].slice(0, file[:content].index(definition.first.to_s)).count("\n") + 1
             }
           end
         end
@@ -33,7 +33,7 @@ module RailsDeadweight
         end
 
         method_calls = method_calls.map do |method|
-          method.to_s
+          method.first.to_s
         end
 
         method_calls = method_calls.reject do |method|
