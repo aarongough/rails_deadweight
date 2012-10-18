@@ -14,15 +14,19 @@ Processing: #{root_path}
 
 Starting...", :green
 
-
+color_puts "Crawling project files...", :green
 project_files = RailsDeadweight::ProjectCrawler.get_project_files(root_path)
-routes_string = `cd #{root_path}; rake routes 2>&1`
+
+color_puts "Getting routes...", :green
+routes_string = `cd #{root_path};bundle exec rake routes 2>&1`
 
 methods = RailsDeadweight::Parsers::MethodParser.get_defined_methods(project_files)
 classes = RailsDeadweight::Parsers::ClassParser.get_defined_classes(project_files)
 
 items_to_process = methods.count + classes.count
 processed_items = 0
+
+color_puts "Searching for dead weight...\n\n", :green
 
 classes.map! do |klass|
   processed_items += 1
