@@ -24,7 +24,6 @@ RD will then process your rails projects and output a report listing all the cla
 The best way to use Rails Deadweight is to run it against your application the same way you would run your test suite: run rails_deadweight, remove a section of the unused code, run your tests, get them to pass, commit, and then start again.
 
 Trying to remove everything that Rails Deadweight finds in one go is not advisable, because if you run up against test failures it will be very difficult to find out which part of your change caused the failure.
-
 Rails Deadweight does its best to minimize false positives, but because of the highly dynamic nature of Ruby you are likely to get at least a few false positives in large projects. Double-check each class or method before you delete it, and make sure you run your tests often!
 
 Have fun deleting some code!
