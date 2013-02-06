@@ -6,6 +6,7 @@ module RailsDeadweight
     def self.get_project_files(root_path)
       files = self.get_ruby_files(root_path + "/app")
       files.concat self.get_ruby_files(root_path + "/lib")
+      files.concat self.get_ruby_files(root_path + "/config")
       
       return files
     end
